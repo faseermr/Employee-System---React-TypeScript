@@ -26,11 +26,13 @@ const EmployeeList: React.FC = () => {
     if (employee_type == 0) {
       const res = await employeeServices.getAllEmployees();
       setEmployees(res.data);
+      setCurrentPage(1);
     } else {
       const res = await employeeServices.getAllEmployeesByEmployeeType(
         employee_type
       );
       setEmployees(res.data);
+      setCurrentPage(1);
     }
   };
 
@@ -48,7 +50,6 @@ const EmployeeList: React.FC = () => {
 
   useEffect(() => {
     getAllEmployeesData();
-    setCurrentPage(1);
   }, [employee_type]);
 
   useEffect(() => {
@@ -56,20 +57,26 @@ const EmployeeList: React.FC = () => {
     setIndexFirstItem(indexLastItem - itemPerPage);
   }, [currentPage, indexLastItem]);
 
+  const handleSorting = (isSorted: boolean) => {
+    setSorted(isSorted);
+  };
+
   // sorted function
   useEffect(() => {
-    let sortedEmployees;
+    let sortedEmployees = employees;
+
     if (sorted) {
       sortedEmployees = employees.sort((a: any, b: any) =>
         a.display_name.localeCompare(b.display_name)
       );
+      setEmployees([...sortedEmployees]);
     } else {
       sortedEmployees = employees.sort((a: any, b: any) =>
         b.display_name.localeCompare(a.display_name)
       );
+      setEmployees([...sortedEmployees]);
     }
-    setEmployees(sortedEmployees);
-  }, [sorted, employees]);
+  }, [sorted]);
 
   // page count for pagination
   const pages: number[] = [];
@@ -96,7 +103,7 @@ const EmployeeList: React.FC = () => {
                 <th>
                   Display Name{" "}
                   <BiSortAlt2
-                    onClick={() => setSorted(!sorted)}
+                    onClick={() => handleSorting(!sorted)}
                     style={{ cursor: "pointer", marginLeft: "10px" }}
                   />
                 </th>
