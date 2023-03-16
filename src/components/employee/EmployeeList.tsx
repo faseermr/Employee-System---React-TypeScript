@@ -6,18 +6,14 @@ import AddEmployeeButton from "./AddEmployeeButton";
 import Pagination from "../pagination/Pagination";
 import SelectEmployeeType from "./SelectEmployeeType";
 import { Employee } from "../../models/Employee";
+import usePagination from "../../hooks/usePagination";
 
 const EmployeeList: React.FC = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [employee_type, setEmployee_type] = useState<number>(0);
-  const [itemPerPage, setItemPerPage] = useState<number>(5);
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const [indexLastItem, setIndexLastItem] = useState<number>(
-    currentPage * itemPerPage
-  );
-  const [indexFirstItem, setIndexFirstItem] = useState<number>(
-    indexLastItem - itemPerPage
-  );
+  const { currentPage, setCurrentPage, indexFirstItem, indexLastItem, pages } =
+    usePagination(employees);
+
   const [sorted, setSorted] = useState<boolean>(false);
   const navigate = useNavigate();
 
@@ -52,11 +48,6 @@ const EmployeeList: React.FC = () => {
     getAllEmployeesData();
   }, [employee_type]);
 
-  useEffect(() => {
-    setIndexLastItem(currentPage * itemPerPage);
-    setIndexFirstItem(indexLastItem - itemPerPage);
-  }, [currentPage, indexLastItem]);
-
   const handleSorting = (isSorted: boolean) => {
     setSorted(isSorted);
   };
@@ -69,22 +60,14 @@ const EmployeeList: React.FC = () => {
       sortedEmployees = employees.sort((a: any, b: any) =>
         a.display_name.localeCompare(b.display_name)
       );
-      setEmployees([...sortedEmployees]);
     } else {
       sortedEmployees = employees.sort((a: any, b: any) =>
         b.display_name.localeCompare(a.display_name)
       );
-      setEmployees([...sortedEmployees]);
     }
+    setEmployees([...sortedEmployees]);
   }, [sorted]);
 
-  // page count for pagination
-  const pages: number[] = [];
-  for (let i = 1; i <= Math.ceil(employees.length / itemPerPage); i++) {
-    if (!pages.includes(i)) {
-      pages.push(i);
-    }
-  }
   return (
     <div className="card">
       <div className="card-header p-3 fw-bold">People</div>
